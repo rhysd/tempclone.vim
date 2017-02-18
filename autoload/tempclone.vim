@@ -42,7 +42,6 @@ function! s:open_repo(repo) abort
     let should_setup_gc = empty(s:repos)
     let s:repos[a:repo.clone_url] = a:repo
     if should_setup_gc
-        " TODO
         augroup plugin-tempclone-gc
             autocmd!
             autocmd VimLeave * call tempclone#gc()

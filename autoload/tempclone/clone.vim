@@ -68,9 +68,36 @@ function! s:clone_vim8(cmd, repo, callback) abort
     let cb.job = job_start(a:cmd, { 'close_cb' : cb.closed, 'exit_cb' : cb.exited, 'out_io' : 'null'})
 endfunction
 
+function! s:on_output_nvim(job, lines, event) dict abort
+    let output = join(a:lines, "\n")
+    if a:event ==# 'stdout'
+        let self._stdout .= output
+    else
+        let self._stderr .= output
+    endif
+endfunction
+
+function! s:on_exit_nvim(channel, status, event) dict abort
+    if a:status != 0
+        let msg = printf("Command failed with exit status %d: %s: %s", a:status, self._cmd, self._stderr)
+        echohl ErrorMsg | echomsg msg | echohl None
+        return
+    endif
+    call call(self._callback, [self._repo])
+endfunction
+
 function! s:clone_nvim(cmd, repo, callback) abort
-    " TODO
-    call s:clone_fallback(a:cmd, a:repo, a:callback)
+    let opts = {
+        \   'on_stdout' : function('s:on_output_nvim'),
+        \   'on_stderr' : function('s:on_output_nvim'),
+        \   'on_exit' : function('s:on_exit_nvim'),
+        \   '_repo' : a:repo,
+        \   '_callback' : a:callback,
+        \   '_cmd' : a:cmd,
+        \   '_stdout' : '',
+        \   '_stderr' : '',
+        \ }
+    call jobstart(cmd, opts)
 endfunction
 
 function! s:clone_fallback(cmd, repo, callback) abort
