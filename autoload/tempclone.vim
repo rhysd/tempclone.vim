@@ -1,3 +1,4 @@
+let s:F = vital#tempclone#import('System.File')
 let s:SEP = has('win32') || has('win64') ? '\' : '/'
 let s:repos = {}
 
@@ -18,16 +19,18 @@ function! s:find_open_cmd(var, default) abort
 endfunction
 
 function! s:open_repo(repo) abort
-    let repo_path = a:repo.clone_dir . s:SEP . a:repo.name
-    if !isdirectory(repo_path)
-        call s:panic('Directory not found: ' . repo_path)
+    if !isdirectory(a:repo.clone_dir)
+        call s:panic('Directory not found: ' . a:repo.clone_dir)
     endif
 
-    let open_path = repo_path . s:SEP . a:repo.path
+    let open_path = a:repo.clone_dir . s:SEP . a:repo.path
     if isdirectory(open_path)
         execute s:find_open_cmd('tempclone_open_dir_cmd', 'Explore') open_path
     elseif filereadable(open_path)
         execute s:find_open_cmd('tempclone_open_file_cmd', 'edit') open_path
+        if has_key(a:repo, 'line')
+            execute a:repo.line
+        endif
     else
         call s:panic('Open path does not exist: ' . open_path)
     endif
@@ -65,7 +68,7 @@ function! tempclone#gc(...) abort
     if a:0 == 0
         for repo in values(s:repos)
             if isdirectory(repo.clone_dir)
-                call delete(repo.clone_dir, 'rf')
+                call s:F.rmdir(repo.clone_dir, 'r')
             endif
         endfor
         let s:repos = {}
@@ -81,7 +84,7 @@ function! tempclone#gc(...) abort
             if !isdirectory(repo.clone_dir)
                 return
             endif
-            call delete(repo.clone_dir, 'rf')
+            call s:F.rmdir(repo.clone_dir, 'r')
             unlet! s:repos[repo.clone_url]
             echom 'tempclone: Removed temporary directory: ' . repo.clone_dir
             if empty(s:repos)
@@ -90,4 +93,6 @@ function! tempclone#gc(...) abort
             return
         endif
     endfor
+
+    echom 'tempclone: No temporary directory to delete was found'
 endfunction

@@ -9,7 +9,7 @@ function! s:git_cmd(repo) abort
     if has_key(a:repo, 'branch')
         let cmd += ['-b', a:repo.branch]
     endif
-    let cmd += [a:repo.clone_dir . s:SEP . a:repo.name]
+    let cmd += [a:repo.clone_dir]
     return join(cmd, ' ')
 endfunction
 
@@ -79,10 +79,11 @@ function! s:clone_fallback(cmd, repo, callback) abort
 endfunction
 
 function! tempclone#clone#start(repo, callback) abort
-    let a:repo.clone_dir = fnamemodify(get(g:, 'tempclone_temp_dir', tempname()), ':p')
-    if !isdirectory(a:repo.clone_dir)
-        call mkdir(a:repo.clone_dir, 'p')
+    let tmp_dir = fnamemodify(get(g:, 'tempclone_temp_dir', tempname()), ':p')
+    if !isdirectory(tmp_dir)
+        call mkdir(tmp_dir, 'p')
     endif
+    let a:repo.clone_dir = tmp_dir . s:SEP . a:repo.name
     echo s:cloning_message(a:repo)
     let cmd = s:git_cmd(a:repo)
     if has('job')
