@@ -1,7 +1,8 @@
 let s:SEP = has('win32') || has('win64') ? '\' : '/'
 
 function! s:git_cmd(repo) abort
-    let cmd = [get(g:, 'tempclone_git_cmd', 'git'), 'clone', a:repo.clone_url]
+    let git = get(g:, 'tempclone_git_cmd', 'git')
+    let cmd = [git, 'clone', a:repo.clone_url]
     if !has_key(a:repo, 'commit')
         let cmd += ['--depth', '1']
     endif
@@ -10,6 +11,9 @@ function! s:git_cmd(repo) abort
         let cmd += ['-b', a:repo.branch]
     endif
     let cmd += [a:repo.clone_dir]
+    if has_key(a:repo, 'commit')
+        let cmd += ['&&', 'cd', a:repo.clone_dir, '&&', git, 'reset', '--hard', a:repo.commit]
+    endif
     return join(cmd, ' ')
 endfunction
 
