@@ -45,7 +45,7 @@ function! s:open_repo(repo) abort
         " TODO
         augroup plugin-tempclone-gc
             autocmd!
-            autocmd VimLeave call tempclone#gc()
+            autocmd VimLeave * call tempclone#gc()
         augroup END
     endif
 endfunction
