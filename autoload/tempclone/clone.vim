@@ -1,4 +1,5 @@
 let s:SEP = has('win32') || has('win64') ? '\' : '/'
+let s:DEFAULT_TMP_DIR = tempname()
 
 function! s:git_cmd(repo) abort
     let git = get(g:, 'tempclone_git_cmd', 'git')
@@ -110,7 +111,7 @@ function! s:clone_fallback(cmd, repo, callback) abort
 endfunction
 
 function! tempclone#clone#start(repo, callback) abort
-    let tmp_dir = fnamemodify(get(g:, 'tempclone_temp_dir', tempname()), ':p')
+    let tmp_dir = fnamemodify(get(g:, 'tempclone_temp_dir', s:DEFAULT_TMP_DIR), ':p')
     if !isdirectory(tmp_dir)
         call mkdir(tmp_dir, 'p')
     endif
