@@ -72,8 +72,10 @@ But if you prefer removing temporary directory explicitly, `:TempcloneGC` is ava
 ```vim
 " Remove temporary directory for the URL
 :TempcloneGC https://github.com/rhysd/tempclone.vim
-" Remove ALL temporary directories
+" Remove temporary directory for current buffer
 :TempcloneGC
+" Remove ALL temporary directories
+:TempcloneGC!
 ```
 
 You can find the command `:Tempclone xxx` which you executed previously in command line history.

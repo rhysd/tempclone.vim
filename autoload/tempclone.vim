@@ -65,15 +65,35 @@ function! tempclone#get_and_open(url) abort
     call tempclone#clone#start(parsed, function('tempclone#open'))
 endfunction
 
-function! tempclone#gc(...) abort
-    if a:0 == 0
+function! s:remove_repo(repo) abort
+    unlet! s:repos[repo.clone_url]
+    if empty(s:repos)
+        silent! autocmd! plugin-tempclone-gc
+    endif
+    if !isdirectory(repo.clone_dir)
+        return
+    endif
+    call s:F.rmdir(repo.clone_dir, 'r')
+    echom 'tempclone: Removed temporary directory: ' . repo.clone_dir
+endfunction
+
+function! tempclone#gc(all, ...) abort
+    if a:all
         for repo in values(s:repos)
-            if isdirectory(repo.clone_dir)
-                call s:F.rmdir(repo.clone_dir, 'r')
+            call s:remove_repo(repo)
+        endfor
+        return
+    endif
+
+    if a:0 == 0
+        let current = expand('%:p')
+        for repo in values(s:repos)
+            if stridx(current, repo.clone_dir) == 0
+                call s:remove_repo(repo)
+                return
             endif
         endfor
-        let s:repos = {}
-        silent! autocmd! plugin-tempclone-gc
+        echom 'tempclone: No temporary directory for current buffer was found'
         return
     endif
 
@@ -82,15 +102,7 @@ function! tempclone#gc(...) abort
     for clone_url in keys(s:repos)
         if target.clone_url ==# clone_url
             let repo = s:repos[clone_url]
-            if !isdirectory(repo.clone_dir)
-                return
-            endif
-            call s:F.rmdir(repo.clone_dir, 'r')
-            unlet! s:repos[repo.clone_url]
-            echom 'tempclone: Removed temporary directory: ' . repo.clone_dir
-            if empty(s:repos)
-                silent! autocmd! plugin-tempclone-gc
-            endif
+            call s:remove_repo(repo)
             return
         endif
     endfor

@@ -70,14 +70,19 @@ directory. So you can use shell commands with `:!` in the repository.
 >
   " URL
   :Tempclone https://github.com/rhysd/tempclone.vim
+
   " Assumes https://github.com
   :Tempclone rhysd/tempclone.vim
+
   " At line 5 of file autoload/tempclone.vim
   :Tempclone https://github.com/rhysd/tempclone.vim/blob/master/autoload/tempclone.vim#L5
+
   " Directory autoload/
   :Tempclone https://github.com/rhysd/tempclone.vim/tree/master/autoload
+
   " Branch 'develop'
   :Tempclone https://github.com/rhysd/tempclone.vim/tree/devbelop
+
   " Specific commit c3cb675
   :Tempclone https://github.com/rhysd/tempclone.vim/commit/c3cb675270902fb7186657844082e9def8f3881d
 <
@@ -90,8 +95,12 @@ the same argument as |:Tempclone|.
 >
   " Remove temporary directory for the URL
   :TempcloneGC https://github.com/rhysd/tempclone.vim
-  " Remove ALL temporary directories
+
+  " Remove temporary directory which current buffer's file belongs to
   :TempcloneGC
+
+  " Remove ALL temporary directories
+  :TempcloneGC!
 <
 You can find the command ":Tempclone xxx" which you executed previously in
 command line history. And add 'GC' to the command line, then you can remove
