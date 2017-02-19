@@ -15,10 +15,10 @@ function! s:find_open_cmd(var, default) abort
     if exists(c)
         return c
     endif
-    echohl ErrorMsg | echomsg printf("Could not find command to open: '%s' Please set g:%s in your vimrc.", c, a:var) | echohl None
+    throw printf("Could not find command to open: '%s' Please set g:%s in your vimrc.", c, a:var)
 endfunction
 
-function! s:open_repo(repo) abort
+function! tempclone#open(repo) abort
     if !isdirectory(a:repo.clone_dir)
         call s:panic('Directory not found: ' . a:repo.clone_dir)
     endif
@@ -51,18 +51,18 @@ function! s:open_repo(repo) abort
     endif
 endfunction
 
-function! tempclone#get(url) abort
+function! tempclone#get_and_open(url) abort
     let parsed = tempclone#parse_uri#parse_target(a:url)
     if parsed == {}
         return
     endif
 
     if has_key(s:repos, parsed.clone_url)
-        call s:open_repo(s:repos[parsed.clone_url])
+        call tempclone#open(s:repos[parsed.clone_url])
         return
     endif
 
-    call tempclone#clone#start(parsed, function('s:open_repo'))
+    call tempclone#clone#start(parsed, function('tempclone#open'))
 endfunction
 
 function! tempclone#gc(...) abort

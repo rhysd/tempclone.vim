@@ -1,0 +1,55 @@
+let g:test_repo = g:data_dir . g:SEP . 'open_test'
+
+function! s:repo_open(...) abort
+    let path = join(a:000, g:SEP)
+    return {
+        \  'clone_url' : 'https://dummy.example.com/repo.git',
+        \  'clone_dir' : g:test_repo,
+        \  'path' : path,
+        \ }
+endfunction
+
+command! -nargs=1 TestOpenDir call <SID>test_open_dir(<q-args>)
+function! s:test_open_dir(dir) abort
+    let g:test_passed_dir = a:dir
+endfunction
+
+Describe tempclone#open()
+    Before each
+        " because default value ':Explore' is not defined in Vim run by
+        " themis.vim
+        let g:tempclone_open_dir_cmd = 'TestOpenDir'
+    End
+
+    After each
+        try
+            autocmd! plugin-tempclone-gc
+        catch
+        endtry
+        bdelete!
+        unlet! g:tempclone_open_dir_cmd
+    End
+
+    It can open root of directory
+        let r = s:repo_open()
+        call tempclone#open(r)
+        Assert Equals(g:test_passed_dir, g:test_repo . g:SEP)
+        Assert Equals(getcwd(), g:test_repo)
+    End
+
+    It can open specific directory in repo
+        let r = s:repo_open('blah')
+        call tempclone#open(r)
+        let dir = g:test_repo . g:SEP . 'blah'
+        Assert Equals(g:test_passed_dir, dir)
+        Assert Equals(getcwd(), dir)
+    End
+
+    It can open specific file in repo
+        let r = s:repo_open('blah', 'test.txt')
+        call tempclone#open(r)
+        let f = expand('%:p')
+        Assert Equals(f, g:test_repo . g:SEP . 'blah' . g:SEP . 'test.txt')
+        Assert Equals(getcwd(), g:test_repo . g:SEP . 'blah')
+    End
+End
