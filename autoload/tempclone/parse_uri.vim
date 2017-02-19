@@ -8,7 +8,7 @@ function! tempclone#parse_uri#parse_target(url) abort
 
     let target_url = a:url
     if target_url !~# '^\%(http\|https\)://'
-        target_url = 'https://github.com/' . target_url
+        let target_url = 'https://github.com/' . target_url
     endif
     let url = s:URI.new(target_url)
     let host = url.host()
@@ -38,7 +38,16 @@ function! s:parse_as_github_like(url) abort
 
     if len(path) >= 2
         let kind = path[0]
-        if kind ==# 'tree' || kind ==# 'blob'
+
+        if kind ==# 'blob' || kind ==# 'tree'
+            if path[1] =~# '^\x\{30,}$'
+                let kind = 'commit'
+            else
+                let kind = 'branch'
+            endif
+        endif
+
+        if kind ==# 'branch'
             let ret.branch = path[1]
             let path = path[2:]
         elseif kind ==# 'commit'
@@ -49,7 +58,7 @@ function! s:parse_as_github_like(url) abort
 
     let ret.path = join(path, s:SEP)
 
-    let match = matchlist(a:url.fragment(), '^L\(\d\+\)$')
+    let match = matchlist(a:url.fragment(), '^L\(\d\+\)\%(-L\d\+\)\=$')
     if len(match) >= 2 && match[1] !=# ''
         let ret.line = str2nr(match[1])
     endif

@@ -1,0 +1,96 @@
+Describe tempclone#parse_url#parse_target()
+    It accepts raw .git URL
+        for u in [ 'https://github.com/rhysd/tempclone.git',
+                \ 'git@github.com/rhysd/clever-f.git']
+            let p = tempclone#parse_uri#parse_target(u)
+            Assert NotEquals(p, {})
+            Assert Equals(p.clone_url, u)
+            Assert Empty(p.path)
+            Assert False(has_key(p, 'branch'))
+            Assert False(has_key(p, 'commit'))
+        endfor
+    End
+
+    It accepts repository page
+        for [u, expected] in [
+            \  ['https://github.com/rhysd/tempclone.vim', 'https://github.com/rhysd/tempclone.vim.git'],
+            \  ['rhysd/tempclone.vim', 'https://github.com/rhysd/tempclone.vim.git'],
+            \  ['https://gitlab.com/Linda_pp/my-empty-repo/', 'https://gitlab.com/Linda_pp/my-empty-repo.git'],
+            \ ]
+            let p = tempclone#parse_uri#parse_target(u)
+            Assert NotEquals(p, {})
+            Assert Equals(p.clone_url, expected)
+            Assert Empty(p.path)
+            Assert False(has_key(p, 'branch'))
+            Assert False(has_key(p, 'commit'))
+        endfor
+    End
+
+    It accepts branch page
+        for u in [
+            \  'https://github.com/rhysd/tempclone.vim/tree/master',
+            \  'https://github.com/rhysd/tempclone.vim/tree/master/autoload',
+            \  'https://github.com/rhysd/tempclone.vim/blob/master/autoload/tempclone.vim',
+            \ ]
+            let p = tempclone#parse_uri#parse_target(u)
+            Assert NotEquals(p, {})
+            Assert Equals(p.clone_url, 'https://github.com/rhysd/tempclone.vim.git')
+            Assert Equals(p.branch, 'master')
+            Assert False(has_key(p, 'commit'))
+        endfor
+    End
+
+    It accepts commit page
+        for u in [
+            \  'https://github.com/rhysd/tempclone.vim/commit/082a186f7d6bad8d88d02c691816b51b41a660be',
+            \  'https://github.com/rhysd/tempclone.vim/tree/082a186f7d6bad8d88d02c691816b51b41a660be/autoload',
+            \  'https://github.com/rhysd/tempclone.vim/blob/082a186f7d6bad8d88d02c691816b51b41a660be/README.md',
+            \ ]
+            let p = tempclone#parse_uri#parse_target(u)
+            Assert NotEquals(p, {})
+            Assert Equals(p.clone_url, 'https://github.com/rhysd/tempclone.vim.git')
+            Assert HasKey(p, 'commit')
+            Assert Equals(p.commit, '082a186f7d6bad8d88d02c691816b51b41a660be')
+            Assert False(has_key(p, 'branch'))
+        endfor
+    End
+
+    It recognizes line number
+        for u in [
+            \  'https://github.com/rhysd/tempclone.vim/blob/master/autoload/vital.vim#L5',
+            \  'https://github.com/rhysd/tempclone.vim/blob/master/autoload/vital.vim#L5-L10',
+            \  'https://github.com/rhysd/tempclone.vim/blob/082a186f7d6bad8d88d02c691816b51b41a660be/autoload/tempclone.vim#L5',
+            \ ]
+            let p = tempclone#parse_uri#parse_target(u)
+            Assert NotEquals(p, {})
+            Assert Equals(p.clone_url, 'https://github.com/rhysd/tempclone.vim.git')
+            Assert HasKey(p, 'line')
+            Assert Equals(type(p.line), type(0))
+            Assert Equals(p.line, 5)
+        endfor
+    End
+
+    It recognizes path from root of repo
+        for [u, expected] in [
+            \  ['https://github.com/rhysd/tempclone.vim', ''],
+            \  ['https://github.com/rhysd/tempclone.vim/blob/master/autoload/vital.vim#L3-L5', 'autoload/vital.vim'],
+            \  ['https://github.com/rhysd/tempclone.vim/tree/master/autoload', 'autoload'],
+            \  ['https://github.com/rhysd/tempclone.vim/blob/082a186f7d6bad8d88d02c691816b51b41a660be/README.md', 'README.md'],
+            \  ['https://github.com/rhysd/tempclone.vim/tree/082a186f7d6bad8d88d02c691816b51b41a660be', ''],
+            \ ]
+            let p = tempclone#parse_uri#parse_target(u)
+            Assert NotEquals(p, {})
+            Assert Equals(p.clone_url, 'https://github.com/rhysd/tempclone.vim.git')
+            Assert Equals(p.path, expected)
+        endfor
+    End
+
+    It raises an error when invalid URL is specified
+        let p = tempclone#parse_uri#parse_target('https://github.com')
+        Assert Equals(p, {})
+        let p = tempclone#parse_uri#parse_target('https://github.com/rhysd')
+        Assert Equals(p, {})
+    End
+End
+
+" vim:ft=vim
