@@ -41,7 +41,7 @@ function! tempclone#open(repo) abort
         return
     endif
 
-    let should_setup_gc = empty(s:repos)
+    let should_setup_gc = empty(s:repos) && !get(g:, 'tempclone_permanent_temp_dir', 0)
     let s:repos[a:repo.clone_url] = a:repo
     if should_setup_gc
         augroup plugin-tempclone-gc

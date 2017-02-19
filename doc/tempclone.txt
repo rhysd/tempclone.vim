@@ -129,6 +129,12 @@ VARIABLES                                              *tempclone.vim-variables*
 
   Shell command to execute Git.
 
+- *g:tempclone_permanent_temp_dir* (Default: 0)
+
+  If this variable is set to non-zero value, |tempclone.vim| will never remove
+  any temporary directories. It means that all cloned repository will remain
+  until you explicitly remove them with |:TempcloneGC|
+
 
 ==============================================================================
 LICENSE                                                  *tempclone.vim-license*
