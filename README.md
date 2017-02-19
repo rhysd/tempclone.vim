@@ -19,6 +19,18 @@ tempclone.vim clones repositories in background using job feature on Vim8+ or Ne
 
 tempclone.vim currently supports GitHub-like URL format. So it's available for GitHub, GitHub:Enterprise or GitLab.
 
+And this plugin is handy for your pull requests workflow.
+
+1. You find a mistake while reading a code on GitHub
+2. Copy URL of the page
+3. `:Tempclone {url}`
+4. Fix the mistake
+5. Run tests with `:!` and shell commands
+6. Send a pull request with `:!hub pull-request` (using [hub][])
+7. Close the Vim (automatically removes temporary repository)
+
+Enjoy!
+
 ## Installation
 
 Please follow the instruction in Vim's help.
@@ -35,6 +47,8 @@ Or please use your favorite plugin manager like [vim-plug][].
 
 `:Tempclone` provides the feature described in above introduction. You can specify main page, directory page, specific branch page,
 specific commit page, and so on. You can simply copy and paste URL in your browser.
+
+`:Tempclone` moves buffer-local current working directory to the repository directory. So you can use shell commands with `:!` in the repository.
 
 ```vim
 " URL
@@ -78,3 +92,4 @@ This repository is distributed under The MIT License.
 [tempclone.vim]: https://github.com/rhysd/tempclone.vim
 [vim-plug]: https://github.com/junegunn/vim-plug
 [document]: ./doc/tempclone.txt
+[hub]: https://github.com/github/hub

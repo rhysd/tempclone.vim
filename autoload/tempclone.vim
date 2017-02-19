@@ -26,8 +26,10 @@ function! s:open_repo(repo) abort
     let open_path = a:repo.clone_dir . s:SEP . a:repo.path
     if isdirectory(open_path)
         execute s:find_open_cmd('tempclone_open_dir_cmd', 'Explore') open_path
+        execute 'lcd' open_path
     elseif filereadable(open_path)
         execute s:find_open_cmd('tempclone_open_file_cmd', 'edit') open_path
+        execute 'lcd' fnamemodify(open_path, ':h')
         if has_key(a:repo, 'line')
             execute a:repo.line
         endif

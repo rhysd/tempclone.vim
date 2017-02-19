@@ -2,6 +2,10 @@ let s:URI = vital#tempclone#import('Web.URI')
 let s:SEP = has('win32') || has('win64') ? '\' : '/'
 
 function! tempclone#parse_uri#parse_target(url) abort
+    if a:url =~# '\.git$'
+        return {'clone_url' : a:url, 'path' : ''}
+    endif
+
     let target_url = a:url
     if target_url !~# '^\%(http\|https\)://'
         target_url = 'https://github.com/' . target_url
