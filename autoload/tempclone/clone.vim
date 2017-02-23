@@ -118,7 +118,7 @@ function! tempclone#clone#start(repo, callback) abort
     let a:repo.clone_dir = tmp_dir . s:SEP . a:repo.name
     echo s:cloning_message(a:repo)
     let cmd = s:git_cmd(a:repo)
-    if has('job')
+    if has('job') && has('patch-8.0.0027')
         call s:clone_vim8(cmd, a:repo, a:callback)
         return
     endif
