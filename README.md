@@ -81,7 +81,7 @@ But if you prefer removing temporary directory explicitly, `:TempcloneGC` is ava
 You can find the command `:Tempclone xxx` which you executed previously in command line history.
 And add 'GC' to the command line, then you can remove the corresponding temporary directory.
 
-## Cusotmize
+## Customize
 
 Please see [document][] for customization.
 
